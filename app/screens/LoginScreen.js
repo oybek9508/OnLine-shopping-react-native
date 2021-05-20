@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { StyleSheet, Image, View, Text } from 'react-native'
+import { StyleSheet, Image } from 'react-native'
 import * as Yup from 'yup'
 import authApi from '../api/auth'
 
@@ -10,21 +10,21 @@ import {
   FormField,
   SubmitButton,
 } from '../components/forms'
+import { Formik } from 'formik'
+import useAuth from '../auth/useAuth'
+
+const validationSchema = Yup.object().shape({
+  email: Yup.string().required().email().label('Email'),
+  password: Yup.string().required().min(4).label('Password'),
+})
 
 function LoginScreen(props) {
+  const { logIn } = useAuth()
   const [loginFailed, setLoginFailed] = useState(false)
-
-  const validationSchema = Yup.object().shape({
-    email: Yup.string().required().email().label('Email'),
-    password: Yup.string().required().min(4).label('Password'),
-  })
 
   const handleSubmit = async ({ email, password }) => {
     const result = await authApi.login(email, password)
-    if (!result.ok) return setLoginFailed(true)
-    setLoginFailed(false)
-    console.log('result', result.data)
-    alert('success')
+    logIn(result.data)
   }
 
   return (
